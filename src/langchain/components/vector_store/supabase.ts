@@ -3,30 +3,40 @@ import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase"
 import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { Document } from "@langchain/core/documents";
 
-const sbUrl = 'https://adzxefltxhqgkdfdcxll.supabase.co'
-const sbApiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkenhlZmx0eGhxZ2tkZmRjeGxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1ODM3NTEsImV4cCI6MjA1OTE1OTc1MX0.HUWoOSLoZuR5rRAUB7WKxIYlD7fUvo8Jwi3JpOSwdYg'
+const subUrl = import.meta.env.VITE_SUPABASE_URL
+const subApiKey = import.meta.env.VITE_SUPABASE_API_KEY
+console.log(111, subUrl, subApiKey)
 
-export function createSupabaseVectorStore(embeddings: EmbeddingsInterface) {
-  try {
-    const client = createClient(sbUrl, sbApiKey)
-    
-    return new SupabaseVectorStore(
-      embeddings,
-      {
-        client,
-        tableName: 'documents',
-        queryName: 'match_documents',
+class SupabaseVectorStoreWrapper {
+  vectorStore: SupabaseVectorStore | undefined
+  constructor(embeddings: EmbeddingsInterface) {
+    try {
+      if (!subUrl || !subApiKey) {
+        throw new Error('SUPABASE_URL or SUPABASE_API_KEY not found')
       }
-    )
-  } catch (e) {
-    console.log(e)
+      const client = createClient(subUrl, subApiKey)
+      
+      this.vectorStore = new SupabaseVectorStore(
+        embeddings,
+        {
+          client,
+          tableName: 'documents',
+          queryName: 'match_documents',
+        }
+      )
+    } catch (e) {
+      console.log(e)
+    }
+  }
+  get instance() {
+    return this.vectorStore
+  }
+  addDocuments(docs: Document[], ids: string[] | number[]) {
+    return this.vectorStore!.addDocuments(docs, { ids });
+  }
+  delete(ids: string[] | number[]) {
+    return this.vectorStore!.delete({ ids });
   }
 }
 
-export async function addDocumentsToSupabaseVectorStore(vectorStore: SupabaseVectorStore, docs: Document[], ids: string[] | number[]) {
-  return await vectorStore.addDocuments(docs, { ids });
-}
-
-export async function deleteFromSupabaseVectorStore(vectorStore: SupabaseVectorStore, ids: string[] | number[]) {
-  return await vectorStore.delete({ ids });
-}
+export default SupabaseVectorStoreWrapper;

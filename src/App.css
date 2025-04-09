@@ -1,6 +1,18 @@
+.wrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+.upload-wrapper {
+  width: 400px;
+  height: 100%;
+}
+.chat-wrapper {
+  flex: 1;
+}
 .chat-container {
   max-width: 600px;
-  margin: 50px auto;
+  margin: 0 auto;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
