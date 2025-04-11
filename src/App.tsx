@@ -73,6 +73,14 @@ function App() {
       }
     ]])
     inputRef.current.value = ''
+    // const res = await rag.current.query(userInput)
+    // setMessages((prev) => {
+    //   const ret = prev.slice(0, prev.length - 1)
+    //   return [...ret, {
+    //     type: 'bot',
+    //     content: res
+    //   }]
+    // })
     rag.current.stream(userInput, (chunk: string) => {
       setMessages((prev) => {
         const ret = prev.slice(0, prev.length - 1)
